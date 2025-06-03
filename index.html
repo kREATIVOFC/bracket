@@ -92,7 +92,7 @@
 
     .top-info {
       text-align: left;
-      font-size: 1.1em; /* lite större */
+      font-size: 1.1em;
       color: #ddd;
     }
 
@@ -113,6 +113,7 @@
       text-decoration: none;
       font-weight: bold;
     }
+
     .match.next {
       border-color: #ffcc00;
       box-shadow: 0 0 15px #ffcc00;
@@ -131,7 +132,6 @@
       border-radius: 4px;
       z-index: 10;
     }
-
   </style>
 </head>
 <body>
@@ -151,7 +151,6 @@
   <script>
     const SHEET_ID = '1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY';
     const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
-
     let logos = {};
 
     function loadLogos() {
@@ -186,7 +185,6 @@
         wrapper.appendChild(label);
       }
 
-
       const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
       const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
@@ -203,10 +201,8 @@
 
       const topInfo = document.createElement('div');
       topInfo.className = 'top-info';
-      topInfo.style.fontSize = '1.1em';
-      topInfo.style.color = '#ddd';
       topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
-  
+
       header.appendChild(topInfo);
 
       if (twitch) {
@@ -235,7 +231,6 @@
       wrapper.appendChild(div);
       return wrapper;
     }
-
 
     function spacer() {
       const d = document.createElement('div');
@@ -272,23 +267,27 @@
           sf.appendChild(matchMap["SF2"]);
           sf.appendChild(spacer());
 
-          f.appendChild(spacer()); // 1
-          f.appendChild(spacer()); // 2
+          f.appendChild(spacer());
+          f.appendChild(spacer());
 
-          // Extra spacer eller margin ovanför själva matchen:
           const finalWrapper = matchMap["Final"];
           finalWrapper.style.marginTop = '60px';
-
           f.appendChild(finalWrapper);
 
-          f.appendChild(spacer()); // 4
-          f.appendChild(spacer()); // 5
-
+          f.appendChild(spacer());
+          f.appendChild(spacer());
         }
       });
     }
 
+    // Kör bracket-laddningen direkt när sidan öppnas
     loadLogos();
+
+    // Kör bracket-laddningen igen var 30:e sekund
+    setInterval(() => {
+      console.log("Hämtar ny bracketdata...");
+      loadLogos();
+    }, 30000);
   </script>
 </body>
 </html>

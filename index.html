@@ -17,27 +17,28 @@
       display: flex;
       justify-content: space-around;
       align-items: flex-start;
+      flex-wrap: wrap;
     }
 
     .round {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      align-items: flex-start; /* För kvartsfinal */
+      align-items: flex-start;
+      gap: 20px;
     }
 
     .round.centered {
-      align-items: center; /* För semifinal och final */
-      gap: 60px; /* Mer luft mellan semifinal/final-boxar */
+      align-items: center;
+      gap: 50px;
     }
-
 
     .match {
       border: 2px solid red;
-      background: rgba(15, 15, 15, 0.8);
+      background: rgba(15, 15, 15, 0.85);
       border-radius: 12px;
-      padding: 15px;
-      width: 250px;
+      padding: 10px 15px;
+      width: 280px;
+      height: auto;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       transition: transform 0.2s ease;
     }
@@ -46,40 +47,40 @@
       transform: scale(1.02);
       border-color: #888;
     }
+
     .top-info {
       text-align: center;
       font-size: 0.9em;
       color: #ccc;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
-
 
     .team {
       display: flex;
       align-items: center;
-      margin: 6px 0;
-      font-size: 24px; /* Ändra detta värde som du vill */
+      margin: 4px 0;
+      font-size: 22px;
     }
 
     .team img {
-      max-width: 50px;
-      max-height: 50px;
+      max-width: 45px;
+      max-height: 45px;
       object-fit: contain;
       margin-right: 10px;
-      background-color: transparent;
       border-radius: 6px;
     }
 
     .score {
       margin-left: auto;
       font-weight: bold;
-      font-size: 20px; /* Separat kontroll för siffrorna om du vill */
+      font-size: 20px;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
+
     h3 {
       text-align: center;
       margin-bottom: 10px;
@@ -89,27 +90,29 @@
     }
 
     .spacer {
-      height: 60px;
+      height: 40px;
     }
+
     #qf {
-      gap: 40px; /* Justera till det mellanrum du vill ha */
+      gap: 20px;
     }
+
     .twitch-info {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
-      margin-left: 5px;
+      margin-bottom: 6px;
+      margin-left: 2px;
     }
 
     .twitch-logo {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       margin-right: 6px;
     }
 
     .twitch-link {
       color: #a970ff;
-      font-size: 16px;
+      font-size: 15px;
       text-decoration: none;
       font-weight: bold;
     }
@@ -117,8 +120,6 @@
     .twitch-link:hover {
       text-decoration: underline;
     }
-
-
   </style>
 </head>
 <body>
@@ -155,106 +156,97 @@
     }
 
     function createMatch(match) {
-  const wrapper = document.createElement('div');
-  wrapper.style.display = 'flex';
-  wrapper.style.flexDirection = 'column';
-  wrapper.style.alignItems = 'flex-start'; // Vänsterjusterat
-  wrapper.style.position = 'relative';
-  wrapper.style.marginBottom = '30px'; // Avstånd till nästa match
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.flexDirection = 'column';
+      wrapper.style.alignItems = 'flex-start';
+      wrapper.style.position = 'relative';
+      wrapper.style.marginBottom = '10px';
 
-  // Twitch-rad
-  if (match['Twitch']) {
-    const twitchDiv = document.createElement('div');
-    twitchDiv.className = 'twitch-info';
-    twitchDiv.innerHTML = `
-      <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
-           alt="Twitch" class="twitch-logo">
-      <a href="https://twitch.tv/${match['Twitch']}" target="_blank" class="twitch-link">
-        ${match['Twitch']}
-      </a>
-    `;
-    wrapper.appendChild(twitchDiv);
-  }
+      if (match['Twitch']) {
+        const twitchDiv = document.createElement('div');
+        twitchDiv.className = 'twitch-info';
+        twitchDiv.innerHTML = `
+          <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
+               alt="Twitch" class="twitch-logo">
+          <a href="https://twitch.tv/${match['Twitch']}" target="_blank" class="twitch-link">
+            ${match['Twitch']}
+          </a>
+        `;
+        wrapper.appendChild(twitchDiv);
+      }
 
-  // Själva matchboxen
-  const div = document.createElement('div');
-  div.className = 'match';
+      const div = document.createElement('div');
+      div.className = 'match';
 
-  const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
-  const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
-  const format = match['Format'] || '';
-  const tid = match['Tid'] || '';
-  const topInfo = document.createElement('div');
-  topInfo.className = 'top-info';
-  topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
+      const format = match['Format'] || '';
+      const tid = match['Tid'] || '';
+      const topInfo = document.createElement('div');
+      topInfo.className = 'top-info';
+      topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
 
-  const teamA = document.createElement('div');
-  teamA.className = 'team';
-  teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
+      const teamA = document.createElement('div');
+      teamA.className = 'team';
+      teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
 
-  const teamB = document.createElement('div');
-  teamB.className = 'team';
-  teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
+      const teamB = document.createElement('div');
+      teamB.className = 'team';
+      teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
 
-  div.appendChild(topInfo);
-  div.appendChild(teamA);
-  div.appendChild(teamB);
+      div.appendChild(topInfo);
+      div.appendChild(teamA);
+      div.appendChild(teamB);
 
-  wrapper.appendChild(div);
-  return wrapper;
-}
-
-
-
+      wrapper.appendChild(div);
+      return wrapper;
+    }
 
     function spacer() {
-  const d = document.createElement('div');
-  d.className = 'spacer';
-  return d;
-}
-
-function loadBracket() {
-  Papa.parse(BASE + "BracketData", {
-    download: true,
-    header: true,
-    complete: function(results) {
-      const qf = document.getElementById('qf');
-      const sf = document.getElementById('sf');
-      const f = document.getElementById('f');
-
-      qf.innerHTML = "<h3>Kvartsfinal</h3>";
-      sf.innerHTML = "<h3>Semifinal</h3>";
-      f.innerHTML = "<h3>Final</h3>";
-
-      const matchMap = {};
-      results.data.forEach(match => {
-        matchMap[match.Match] = createMatch(match);
-      });
-
-      // Kvartsfinaler
-      qf.appendChild(matchMap["QF1"]);
-      qf.appendChild(matchMap["QF2"]);
-      qf.appendChild(matchMap["QF3"]);
-      qf.appendChild(matchMap["QF4"]);
-
-      // Semifinaler mellan QF1+QF2 och QF3+QF4
-      sf.appendChild(spacer());
-      sf.appendChild(matchMap["SF1"]);
-      sf.appendChild(spacer());
-      sf.appendChild(matchMap["SF2"]);
-      sf.appendChild(spacer());
-
-      // Final mellan SF1 och SF2
-      f.appendChild(spacer());
-      f.appendChild(spacer());
-      f.appendChild(matchMap["Final"]);
-      f.appendChild(spacer());
-      f.appendChild(spacer());
+      const d = document.createElement('div');
+      d.className = 'spacer';
+      return d;
     }
-  });
-}
 
+    function loadBracket() {
+      Papa.parse(BASE + "BracketData", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const qf = document.getElementById('qf');
+          const sf = document.getElementById('sf');
+          const f = document.getElementById('f');
+
+          qf.innerHTML = "<h3>Kvartsfinal</h3>";
+          sf.innerHTML = "<h3>Semifinal</h3>";
+          f.innerHTML = "<h3>Final</h3>";
+
+          const matchMap = {};
+          results.data.forEach(match => {
+            matchMap[match.Match] = createMatch(match);
+          });
+
+          qf.appendChild(matchMap["QF1"]);
+          qf.appendChild(matchMap["QF2"]);
+          qf.appendChild(matchMap["QF3"]);
+          qf.appendChild(matchMap["QF4"]);
+
+          sf.appendChild(spacer());
+          sf.appendChild(matchMap["SF1"]);
+          sf.appendChild(spacer());
+          sf.appendChild(matchMap["SF2"]);
+          sf.appendChild(spacer());
+
+          f.appendChild(spacer());
+          f.appendChild(spacer());
+          f.appendChild(matchMap["Final"]);
+          f.appendChild(spacer());
+          f.appendChild(spacer());
+        }
+      });
+    }
 
     loadLogos();
   </script>

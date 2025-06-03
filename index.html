@@ -17,17 +17,24 @@
     .match {
       display: flex;
       justify-content: space-between;
-      width: 300px;
+      width: 400px;
       margin: 10px 0;
+      border-bottom: 1px solid white;
+      padding-bottom: 5px;
     }
     .team {
       display: flex;
       align-items: center;
     }
     .team img {
-      width: 30px;
-      height: 30px;
+      width: 40px;
+      height: 40px;
       margin-right: 10px;
+      object-fit: contain;
+    }
+    .team span {
+      font-size: 18px;
+      color: white;
     }
   </style>
 </head>
@@ -45,6 +52,8 @@
 
     function showInfo(data) {
       const bracketDiv = document.getElementById('bracket');
+      bracketDiv.innerHTML = ''; // Rensa vid omladdning
+
       data.forEach(match => {
         const matchDiv = document.createElement('div');
         matchDiv.className = 'match';

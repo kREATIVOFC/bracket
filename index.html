@@ -16,16 +16,21 @@
     .bracket {
       display: flex;
       justify-content: space-around;
-      gap: 100px;
       align-items: flex-start;
     }
 
     .round {
       display: flex;
       flex-direction: column;
-      gap: 100px;
-      align-items: center;
+      gap: 20px;
+      align-items: flex-start; /* För kvartsfinal */
     }
+
+    .round.centered {
+      align-items: center; /* För semifinal och final */
+      gap: 60px; /* Mer luft mellan semifinal/final-boxar */
+    }
+
 
     .match {
       border: 2px solid red;
@@ -82,12 +87,6 @@
       padding-bottom: 5px;
       width: 100%;
     }
-    #sf {
-      margin-top: 120px; /* Justera värdet efter hur långt ner du vill ha semifinalerna */
-    }
-    #final {
-      margin-top: 240px; /* Justera värdet efter hur långt ner du vill ha semifinalerna */
-    }
 
     .spacer {
       height: 60px;
@@ -100,10 +99,10 @@
     <div class="round" id="qf">
       <h3>Kvartsfinal</h3>
     </div>
-    <div class="round" id="sf">
+    <div class="round centered" id="sf">
       <h3>Semifinal</h3>
     </div>
-    <div class="round" id="f">
+    <div class="round centered" id="f">
       <h3>Final</h3>
     </div>
   </div>

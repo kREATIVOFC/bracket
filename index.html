@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Turneringsbracket</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Tabletop.js/1.5.1/tabletop.min.js"></script>
   <style>
     body {
       background-color: transparent;
@@ -13,13 +13,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 20px;
     }
     .match {
       display: flex;
       justify-content: space-between;
-      width: 400px;
+      width: 350px;
       margin: 10px 0;
-      border-bottom: 1px solid white;
+      border-bottom: 1px solid #ccc;
       padding-bottom: 5px;
     }
     .team {
@@ -27,14 +28,9 @@
       align-items: center;
     }
     .team img {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       margin-right: 10px;
-      object-fit: contain;
-    }
-    .team span {
-      font-size: 18px;
-      color: white;
     }
   </style>
 </head>
@@ -42,42 +38,55 @@
   <div class="bracket" id="bracket"></div>
 
   <script>
+    let logoMap = {};
+
     function init() {
       Tabletop.init({
         key: 'https://docs.google.com/spreadsheets/d/1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY/pubhtml',
-        callback: showInfo,
-        simpleSheet: true
+        wanted: ["Logotabell", "BracketData"],
+        callback: showBracket,
+        simpleSheet: false
       });
     }
 
-    function showInfo(data) {
-      const bracketDiv = document.getElementById('bracket');
-      bracketDiv.innerHTML = ''; // Rensa vid omladdning
+    function showBracket(data, tabletop) {
+      const logoSheet = data["Logotabell"].elements;
+      const bracketSheet = data["BracketData"].elements;
 
-      data.forEach(match => {
+      // Skapa en karta över lag → logotyp-URL
+      logoSheet.forEach(row => {
+        logoMap[row["Lag"]] = row["LogotypURL"];
+      });
+
+      const bracketDiv = document.getElementById("bracket");
+      bracketSheet.forEach(match => {
         const matchDiv = document.createElement('div');
         matchDiv.className = 'match';
+
+        const teamAName = match["Lag A"];
+        const teamBName = match["Lag B"];
 
         const teamA = document.createElement('div');
         teamA.className = 'team';
         const logoA = document.createElement('img');
-        logoA.src = match['Team A Logo URL'];
+        logoA.src = logoMap[teamAName] || '';
         const nameA = document.createElement('span');
-        nameA.textContent = match['Team A'];
+        nameA.textContent = teamAName;
         teamA.appendChild(logoA);
         teamA.appendChild(nameA);
 
         const teamB = document.createElement('div');
         teamB.className = 'team';
         const logoB = document.createElement('img');
-        logoB.src = match['Team B Logo URL'];
+        logoB.src = logoMap[teamBName] || '';
         const nameB = document.createElement('span');
-        nameB.textContent = match['Team B'];
+        nameB.textContent = teamBName;
         teamB.appendChild(logoB);
         teamB.appendChild(nameB);
 
         matchDiv.appendChild(teamA);
         matchDiv.appendChild(teamB);
+
         bracketDiv.appendChild(matchDiv);
       });
     }

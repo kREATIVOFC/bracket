@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Turneringsbracket</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+  <style>
+    body {
+      background-color: transparent;
+      font-family: Arial, sans-serif;
+    }
+    .bracket {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .match {
+      display: flex;
+      justify-content: space-between;
+      width: 300px;
+      margin: 10px 0;
+    }
+    .team {
+      display: flex;
+      align-items: center;
+    }
+    .team img {
+      width: 30px;
+      height: 30px;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bracket" id="bracket"></div>
+
+  <script>
+    function init() {
+      Tabletop.init({
+        key: 'https://docs.google.com/spreadsheets/d/1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY/pubhtml',
+        callback: showInfo,
+        simpleSheet: true
+      });
+    }
+
+    function showInfo(data) {
+      const bracketDiv = document.getElementById('bracket');
+      data.forEach(match => {
+        const matchDiv = document.createElement('div');
+        matchDiv.className = 'match';
+
+        const teamA = document.createElement('div');
+        teamA.className = 'team';
+        const logoA = document.createElement('img');
+        logoA.src = match['Team A Logo URL'];
+        const nameA = document.createElement('span');
+        nameA.textContent = match['Team A'];
+        teamA.appendChild(logoA);
+        teamA.appendChild(nameA);
+
+        const teamB = document.createElement('div');
+        teamB.className = 'team';
+        const logoB = document.createElement('img');
+        logoB.src = match['Team B Logo URL'];
+        const nameB = document.createElement('span');
+        nameB.textContent = match['Team B'];
+        teamB.appendChild(logoB);
+        teamB.appendChild(nameB);
+
+        matchDiv.appendChild(teamA);
+        matchDiv.appendChild(teamB);
+        bracketDiv.appendChild(matchDiv);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

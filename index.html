@@ -3,116 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <title>Turneringsbracket</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
-      background-color: #111;
-      color: white;
+      background-color: #000;
       font-family: Arial, sans-serif;
-    }
-    .bracket {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 40px;
+      color: white;
       padding: 40px;
-      justify-items: center;
     }
+
+    .bracket {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+    }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
     .match {
-      background: #222;
-      padding: 10px 20px;
+      border: 2px solid #555;
+      padding: 10px;
+      width: 250px;
+      background: #111;
       border-radius: 10px;
-      text-align: center;
-      width: 220px;
     }
+
     .team {
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin: 8px 0;
+      margin: 5px 0;
     }
+
     .team img {
       width: 30px;
       height: 30px;
       margin-right: 10px;
-      object-fit: contain;
     }
+
     .score {
-      font-size: 14px;
-      color: #aaa;
+      margin-left: auto;
+      font-weight: bold;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="bracket" id="bracket"></div>
+  <h2>Turneringsbracket</h2>
+  <div class="bracket" id="bracket">
+    <div class="round" id="qf">
+      <h3>Kvartsfinal</h3>
+    </div>
+    <div class="round" id="sf">
+      <h3>Semifinal</h3>
+    </div>
+    <div class="round" id="f">
+      <h3>Final</h3>
+    </div>
+  </div>
 
   <script>
-    const SHEET_ID = "1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY";
-    const BRACKET_SHEET = "BracketData";
-    const LOGO_SHEET = "Logotabell";
+    const SHEET_ID = '1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY';
+    const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
 
-    async function fetchSheet(sheetName) {
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-      const response = await fetch(url);
-      const text = await response.text();
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      const cols = json.table.cols.map(col => col.label);
-      return json.table.rows.map(row => {
-        const obj = {};
-        row.c.forEach((cell, i) => {
-          obj[cols[i]] = cell ? cell.v : "";
-        });
-        return obj;
+    let logos = {};
+
+    function loadLogos() {
+      Papa.parse(BASE + "Logotabell", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          results.data.forEach(row => {
+            logos[row['Lag']] = row['Länk'];
+          });
+          loadBracket();
+        }
       });
     }
 
-    async function init() {
-      const logos = await fetchSheet(LOGO_SHEET);
-      const logoMap = {};
-      logos.forEach(row => {
-        logoMap[row["Lag"]] = row["Länk"];
-      });
+    function createMatch(match) {
+      const div = document.createElement('div');
+      div.className = 'match';
 
-      const matches = await fetchSheet(BRACKET_SHEET);
-      const bracketDiv = document.getElementById("bracket");
-      matches.forEach(match => {
-        const matchDiv = document.createElement("div");
-        matchDiv.className = "match";
+      const teamA = document.createElement('div');
+      teamA.className = 'team';
+      teamA.innerHTML = `<img src="${logos[match['Lag A']] || ''}" alt="">${match['Lag A']}<span class="score">${match['Score A'] || ''}</span>`;
 
-        const teamA = document.createElement("div");
-        teamA.className = "team";
-        const logoA = document.createElement("img");
-        logoA.src = logoMap[match["Lag A"]] || "";
-        const nameA = document.createElement("span");
-        nameA.textContent = match["Lag A"];
-        teamA.appendChild(logoA);
-        teamA.appendChild(nameA);
+      const teamB = document.createElement('div');
+      teamB.className = 'team';
+      teamB.innerHTML = `<img src="${logos[match['Lag B']] || ''}" alt="">${match['Lag B']}<span class="score">${match['Score B'] || ''}</span>`;
 
-        const scoreA = document.createElement("div");
-        scoreA.className = "score";
-        scoreA.textContent = `Score: ${match["Score A"]}`;
+      div.appendChild(teamA);
+      div.appendChild(teamB);
 
-        const teamB = document.createElement("div");
-        teamB.className = "team";
-        const logoB = document.createElement("img");
-        logoB.src = logoMap[match["Lag B"]] || "";
-        const nameB = document.createElement("span");
-        nameB.textContent = match["Lag B"];
-        teamB.appendChild(logoB);
-        teamB.appendChild(nameB);
+      return div;
+    }
 
-        const scoreB = document.createElement("div");
-        scoreB.className = "score";
-        scoreB.textContent = `Score: ${match["Score B"]}`;
+    function loadBracket() {
+      Papa.parse(BASE + "BracketData", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const qf = document.getElementById('qf');
+          const sf = document.getElementById('sf');
+          const f = document.getElementById('f');
 
-        matchDiv.appendChild(teamA);
-        matchDiv.appendChild(scoreA);
-        matchDiv.appendChild(teamB);
-        matchDiv.appendChild(scoreB);
-
-        bracketDiv.appendChild(matchDiv);
+          results.data.forEach(match => {
+            const matchElement = createMatch(match);
+            if (match.Match.startsWith("QF")) {
+              qf.appendChild(matchElement);
+            } else if (match.Match.startsWith("SF")) {
+              sf.appendChild(matchElement);
+            } else if (match.Match.startsWith("Final")) {
+              f.appendChild(matchElement);
+            }
+          });
+        }
       });
     }
 
-    init();
+    loadLogos();
   </script>
 </body>
 </html>

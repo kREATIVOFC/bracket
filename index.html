@@ -151,6 +151,19 @@
       teamB.className = 'team';
       teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
 
+      if (match['Twitch']) {
+        const twitchDiv = document.createElement('div');
+        twitchDiv.style.display = 'flex';
+        twitchDiv.style.alignItems = 'center';
+        twitchDiv.style.marginBottom = '5px';
+        twitchDiv.innerHTML = `
+        <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
+           alt="Twitch" style="width: 20px; height: 20px; margin-right: 6px;">
+        <span style="color:#a970ff; font-size: 14px;">${match['Twitch']}</span>
+        `;
+        div.appendChild(twitchDiv);
+      }
+
       div.appendChild(topInfo);
       div.appendChild(teamA);
       div.appendChild(teamB);

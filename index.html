@@ -91,6 +91,10 @@
     .spacer {
       height: 60px;
     }
+    #qf {
+      gap: 40px; /* Justera till det mellanrum du vill ha */
+    }
+
   </style>
 </head>
 <body>
@@ -191,6 +195,7 @@ function loadBracket() {
       sf.appendChild(matchMap["SF1"]);
       sf.appendChild(spacer());
       sf.appendChild(matchMap["SF2"]);
+      sf.appendChild(spacer());
 
       // Final mellan SF1 och SF2
       f.appendChild(spacer());

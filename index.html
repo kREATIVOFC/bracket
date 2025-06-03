@@ -156,46 +156,52 @@
 
 
 
-    function loadBracket() {
-      Papa.parse(BASE + "BracketData", {
-        download: true,
-        header: true,
-        complete: function(results) {
-          const qf = document.getElementById('qf');
-          const sf = document.getElementById('sf');
-          const f = document.getElementById('f');
+    function spacer() {
+  const d = document.createElement('div');
+  d.className = 'spacer';
+  return d;
+}
 
-          // Rensa tidigare innehåll om man laddar om
-          qf.innerHTML = "<h3>Kvartsfinal</h3>";
-          sf.innerHTML = "<h3>Semifinal</h3>";
-          f.innerHTML = "<h3>Final</h3>";
+function loadBracket() {
+  Papa.parse(BASE + "BracketData", {
+    download: true,
+    header: true,
+    complete: function(results) {
+      const qf = document.getElementById('qf');
+      const sf = document.getElementById('sf');
+      const f = document.getElementById('f');
 
-          const matchMap = {};
-          results.data.forEach(match => {
-            matchMap[match.Match] = createMatch(match);
-          });
+      qf.innerHTML = "<h3>Kvartsfinal</h3>";
+      sf.innerHTML = "<h3>Semifinal</h3>";
+      f.innerHTML = "<h3>Final</h3>";
 
-          // Kvartsfinaler
-          qf.appendChild(matchMap["QF1"]);
-          qf.appendChild(matchMap["QF2"]);
-          qf.appendChild(matchMap["QF3"]);
-          qf.appendChild(matchMap["QF4"]);
-
-          // Semifinaler mellan QF1+QF2 och QF3+QF4
-          sf.appendChild(document.createElement('div')); // tom plats
-          sf.appendChild(matchMap["SF1"]);
-          sf.appendChild(document.createElement('div')); // tom plats
-          sf.appendChild(matchMap["SF2"]);
-
-          // Final mellan SF1 och SF2
-          f.appendChild(document.createElement('div'));
-          f.appendChild(document.createElement('div')); // totalt 2 över
-          f.appendChild(matchMap["Final"]);
-          f.appendChild(document.createElement('div'));
-          f.appendChild(document.createElement('div')); // totalt 2 under
-
+      const matchMap = {};
+      results.data.forEach(match => {
+        matchMap[match.Match] = createMatch(match);
       });
+
+      // Kvartsfinaler
+      qf.appendChild(matchMap["QF1"]);
+      qf.appendChild(matchMap["QF2"]);
+      qf.appendChild(matchMap["QF3"]);
+      qf.appendChild(matchMap["QF4"]);
+
+      // Semifinaler mellan QF1+QF2 och QF3+QF4
+      sf.appendChild(spacer());
+      sf.appendChild(matchMap["SF1"]);
+      sf.appendChild(spacer());
+      sf.appendChild(matchMap["SF2"]);
+
+      // Final mellan SF1 och SF2
+      f.appendChild(spacer());
+      f.appendChild(spacer());
+      f.appendChild(matchMap["Final"]);
+      f.appendChild(spacer());
+      f.appendChild(spacer());
     }
+  });
+}
+
 
     loadLogos();
   </script>

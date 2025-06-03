@@ -245,11 +245,18 @@
           sf.appendChild(matchMap["SF2"]);
           sf.appendChild(spacer());
 
-          f.appendChild(spacer());
-          f.appendChild(spacer());
-          f.appendChild(matchMap["Final"]);
-          f.appendChild(spacer());
-          f.appendChild(spacer());
+          f.appendChild(spacer()); // 1
+          f.appendChild(spacer()); // 2
+
+          // Extra spacer eller margin ovanför själva matchen:
+          const finalWrapper = matchMap["Final"];
+          finalWrapper.style.marginTop = '20px';
+
+          f.appendChild(finalWrapper);
+
+          f.appendChild(spacer()); // 4
+          f.appendChild(spacer()); // 5
+
         }
       });
     }

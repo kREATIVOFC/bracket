@@ -97,19 +97,23 @@
       const div = document.createElement('div');
       div.className = 'match';
 
+      const logoA = logos[match['Lag A']] || 'logos/placeholder.png';
+      const logoB = logos[match['Lag B']] || 'logos/placeholder.png';
+
       const teamA = document.createElement('div');
       teamA.className = 'team';
-      teamA.innerHTML = `<img src="${logos[match['Lag A']] || ''}" alt="">${match['Lag A']}<span class="score">${match['Score A'] || ''}</span>`;
+      teamA.innerHTML = `<img src="${logoA}" alt="">${match['Lag A'] || ''}<span class="score">${match['Score A'] || ''}</span>`;
 
       const teamB = document.createElement('div');
       teamB.className = 'team';
-      teamB.innerHTML = `<img src="${logos[match['Lag B']] || ''}" alt="">${match['Lag B']}<span class="score">${match['Score B'] || ''}</span>`;
+      teamB.innerHTML = `<img src="${logoB}" alt="">${match['Lag B'] || ''}<span class="score">${match['Score B'] || ''}</span>`;
 
       div.appendChild(teamA);
       div.appendChild(teamB);
 
-      return div;
+    return div;
     }
+
 
     function loadBracket() {
       Papa.parse(BASE + "BracketData", {

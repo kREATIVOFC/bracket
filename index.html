@@ -28,7 +28,7 @@
 
     .match {
       border: 2px solid red;
-      background: rgba(15, 15, 15, 0.6);
+      background: rgba(15, 15, 15, 0.8);
       border-radius: 12px;
       padding: 15px;
       width: 250px;
@@ -40,12 +40,18 @@
       transform: scale(1.02);
       border-color: #888;
     }
+    .center-info {
+      text-align: center;
+      font-size: 0.9em;
+      color: #ccc;
+      margin: 6px 0;
+    }
 
     .team {
       display: flex;
       align-items: center;
       margin: 6px 0;
-      font-size: 20px; /* Ändra detta värde som du vill */
+      font-size: 24px; /* Ändra detta värde som du vill */
     }
 
     .team img {
@@ -73,6 +79,12 @@
       border-bottom: 1px solid #555;
       padding-bottom: 5px;
       width: 100%;
+    }
+    #sf {
+      margin-top: 120px; /* Justera värdet efter hur långt ner du vill ha semifinalerna */
+    }
+    #final {
+      margin-top: 240px; /* Justera värdet efter hur långt ner du vill ha semifinalerna */
     }
 
     .spacer {
@@ -122,17 +134,25 @@
 
       const teamA = document.createElement('div');
       teamA.className = 'team';
-      teamA.innerHTML = `<img src="${logoA}" alt="">${match['Lag A'] || ''}<span class="score">${match['Score A'] || ''}</span>`;
+      teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
 
       const teamB = document.createElement('div');
       teamB.className = 'team';
-      teamB.innerHTML = `<img src="${logoB}" alt="">${match['Lag B'] || ''}<span class="score">${match['Score B'] || ''}</span>`;
+      teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
+
+      const centerInfo = document.createElement('div');
+      centerInfo.className = 'center-info';
+      const format = match['Format'] || '';
+      const tid = match['Tid'] || '';
+      centerInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
 
       div.appendChild(teamA);
+      div.appendChild(centerInfo);
       div.appendChild(teamB);
 
       return div;
     }
+
 
     function loadBracket() {
       Papa.parse(BASE + "BracketData", {

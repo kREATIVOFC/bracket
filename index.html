@@ -94,6 +94,30 @@
     #qf {
       gap: 40px; /* Justera till det mellanrum du vill ha */
     }
+    .twitch-info {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      margin-left: 5px;
+    }
+
+    .twitch-logo {
+      width: 20px;
+      height: 20px;
+      margin-right: 6px;
+    }
+
+    .twitch-link {
+      color: #a970ff;
+      font-size: 16px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .twitch-link:hover {
+      text-decoration: underline;
+    }
+
 
   </style>
 </head>
@@ -131,45 +155,56 @@
     }
 
     function createMatch(match) {
-      const div = document.createElement('div');
-      div.className = 'match';
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'flex';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.alignItems = 'flex-start'; // Vänsterjusterat
+  wrapper.style.position = 'relative';
+  wrapper.style.marginBottom = '30px'; // Avstånd till nästa match
 
-      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
-      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+  // Twitch-rad
+  if (match['Twitch']) {
+    const twitchDiv = document.createElement('div');
+    twitchDiv.className = 'twitch-info';
+    twitchDiv.innerHTML = `
+      <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
+           alt="Twitch" class="twitch-logo">
+      <a href="https://twitch.tv/${match['Twitch']}" target="_blank" class="twitch-link">
+        ${match['Twitch']}
+      </a>
+    `;
+    wrapper.appendChild(twitchDiv);
+  }
 
-      const format = match['Format'] || '';
-      const tid = match['Tid'] || '';
-      const topInfo = document.createElement('div');
-      topInfo.className = 'top-info';
-      topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
+  // Själva matchboxen
+  const div = document.createElement('div');
+  div.className = 'match';
 
-      const teamA = document.createElement('div');
-      teamA.className = 'team';
-      teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
+  const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+  const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
-      const teamB = document.createElement('div');
-      teamB.className = 'team';
-      teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
+  const format = match['Format'] || '';
+  const tid = match['Tid'] || '';
+  const topInfo = document.createElement('div');
+  topInfo.className = 'top-info';
+  topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
 
-      if (match['Twitch']) {
-        const twitchDiv = document.createElement('div');
-        twitchDiv.style.display = 'flex';
-        twitchDiv.style.alignItems = 'center';
-        twitchDiv.style.marginBottom = '5px';
-        twitchDiv.innerHTML = `
-        <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
-           alt="Twitch" style="width: 20px; height: 20px; margin-right: 6px;">
-        <span style="color:#a970ff; font-size: 14px;">${match['Twitch']}</span>
-        `;
-        div.appendChild(twitchDiv);
-      }
+  const teamA = document.createElement('div');
+  teamA.className = 'team';
+  teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
 
-      div.appendChild(topInfo);
-      div.appendChild(teamA);
-      div.appendChild(teamB);
+  const teamB = document.createElement('div');
+  teamB.className = 'team';
+  teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
 
-      return div;
-    }
+  div.appendChild(topInfo);
+  div.appendChild(teamA);
+  div.appendChild(teamB);
+
+  wrapper.appendChild(div);
+  return wrapper;
+}
+
 
 
 

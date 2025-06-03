@@ -113,6 +113,24 @@
       text-decoration: none;
       font-weight: bold;
     }
+    .match.next {
+      border-color: #ffcc00;
+      box-shadow: 0 0 15px #ffcc00;
+      position: relative;
+    }
+
+    .next-label {
+      position: absolute;
+      top: -14px;
+      left: 10px;
+      background-color: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      padding: 2px 8px;
+      font-size: 16px;
+      border-radius: 4px;
+      z-index: 10;
+    }
 
   </style>
 </head>
@@ -159,6 +177,15 @@
 
       const div = document.createElement('div');
       div.className = 'match';
+
+      if (match['Nästa'] === 'TRUE') {
+        div.classList.add('next');
+        const label = document.createElement('div');
+        label.className = 'next-label';
+        label.textContent = 'Nästa match';
+        wrapper.appendChild(label);
+      }
+
 
       const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
       const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';

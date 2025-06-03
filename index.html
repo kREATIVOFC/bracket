@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <title>Turneringsbracket</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
   <style>
     body {
-      background-color: transparent;
+      background-color: #111;
+      color: white;
       font-family: Arial, sans-serif;
-      color: #fff;
     }
     .bracket {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      padding: 40px;
+      justify-items: center;
     }
     .match {
-      display: flex;
-      justify-content: space-between;
-      width: 400px;
-      margin: 10px 0;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
+      background: #222;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 220px;
     }
     .team {
       display: flex;
       align-items: center;
+      justify-content: center;
+      margin: 8px 0;
     }
     .team img {
       width: 30px;
@@ -34,8 +35,9 @@
       margin-right: 10px;
       object-fit: contain;
     }
-    .team span {
-      font-size: 16px;
+    .score {
+      font-size: 14px;
+      color: #aaa;
     }
   </style>
 </head>
@@ -43,59 +45,74 @@
   <div class="bracket" id="bracket"></div>
 
   <script>
-    function init() {
-      Tabletop.init({
-        key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS55QtMToop6963OlBV7c7kkJingEp9F7l1pSAAUSBxJKmMJLkKW0dmoSdGh5NxdLuO2tdDZd4Hkxcs/pubhtml',
-        callback: showBracket,
-        simpleSheet: false
+    const SHEET_ID = "1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY";
+    const BRACKET_SHEET = "BracketData";
+    const LOGO_SHEET = "Logotabell";
+
+    async function fetchSheet(sheetName) {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+      const response = await fetch(url);
+      const text = await response.text();
+      const json = JSON.parse(text.substr(47).slice(0, -2));
+      const cols = json.table.cols.map(col => col.label);
+      return json.table.rows.map(row => {
+        const obj = {};
+        row.c.forEach((cell, i) => {
+          obj[cols[i]] = cell ? cell.v : "";
+        });
+        return obj;
       });
     }
 
-    function showBracket(data, tabletop) {
-      const logoData = data["Logotabell"].elements;
-      const matchData = data["BracketData"].elements;
-
-      // Skapa en karta över lag → logotyp-URL
+    async function init() {
+      const logos = await fetchSheet(LOGO_SHEET);
       const logoMap = {};
-      logoData.forEach(row => {
+      logos.forEach(row => {
         logoMap[row["Lag"]] = row["Länk"];
       });
 
+      const matches = await fetchSheet(BRACKET_SHEET);
       const bracketDiv = document.getElementById("bracket");
-      bracketDiv.innerHTML = ''; // Rensa tidigare innehåll
+      matches.forEach(match => {
+        const matchDiv = document.createElement("div");
+        matchDiv.className = "match";
 
-      matchData.forEach(match => {
-        const matchDiv = document.createElement('div');
-        matchDiv.className = 'match';
-
-        const teamAName = match["Lag A"];
-        const teamBName = match["Lag B"];
-
-        const teamA = document.createElement('div');
-        teamA.className = 'team';
-        const logoA = document.createElement('img');
-        logoA.src = logoMap[teamAName] || '';
-        const nameA = document.createElement('span');
-        nameA.textContent = teamAName;
+        const teamA = document.createElement("div");
+        teamA.className = "team";
+        const logoA = document.createElement("img");
+        logoA.src = logoMap[match["Lag A"]] || "";
+        const nameA = document.createElement("span");
+        nameA.textContent = match["Lag A"];
         teamA.appendChild(logoA);
         teamA.appendChild(nameA);
 
-        const teamB = document.createElement('div');
-        teamB.className = 'team';
-        const logoB = document.createElement('img');
-        logoB.src = logoMap[teamBName] || '';
-        const nameB = document.createElement('span');
-        nameB.textContent = teamBName;
+        const scoreA = document.createElement("div");
+        scoreA.className = "score";
+        scoreA.textContent = `Score: ${match["Score A"]}`;
+
+        const teamB = document.createElement("div");
+        teamB.className = "team";
+        const logoB = document.createElement("img");
+        logoB.src = logoMap[match["Lag B"]] || "";
+        const nameB = document.createElement("span");
+        nameB.textContent = match["Lag B"];
         teamB.appendChild(logoB);
         teamB.appendChild(nameB);
 
+        const scoreB = document.createElement("div");
+        scoreB.className = "score";
+        scoreB.textContent = `Score: ${match["Score B"]}`;
+
         matchDiv.appendChild(teamA);
+        matchDiv.appendChild(scoreA);
         matchDiv.appendChild(teamB);
+        matchDiv.appendChild(scoreB);
+
         bracketDiv.appendChild(matchDiv);
       });
     }
 
-    window.addEventListener('DOMContentLoaded', init);
+    init();
   </script>
 </body>
 </html>

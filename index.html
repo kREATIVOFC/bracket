@@ -48,13 +48,6 @@
       border-color: #888;
     }
 
-    .top-info {
-      text-align: center;
-      font-size: 0.9em;
-      color: #ccc;
-      margin-bottom: 4px;
-    }
-
     .team {
       display: flex;
       align-items: center;
@@ -97,29 +90,30 @@
       gap: 20px;
     }
 
+    .top-info {
+      text-align: left;
+      font-size: 1.1em; /* lite större */
+      color: #ddd;
+    }
+
     .twitch-info {
       display: flex;
       align-items: center;
-      margin-bottom: 6px;
-      margin-left: 2px;
+      gap: 6px;
     }
 
     .twitch-logo {
       width: 18px;
       height: 18px;
-      margin-right: 6px;
     }
 
     .twitch-link {
       color: #a970ff;
-      font-size: 15px;
+      font-size: 16px;
       text-decoration: none;
       font-weight: bold;
     }
 
-    .twitch-link:hover {
-      text-decoration: underline;
-    }
   </style>
 </head>
 <body>
@@ -161,20 +155,7 @@
       wrapper.style.flexDirection = 'column';
       wrapper.style.alignItems = 'flex-start';
       wrapper.style.position = 'relative';
-      wrapper.style.marginBottom = '10px';
-
-      if (match['Twitch']) {
-        const twitchDiv = document.createElement('div');
-        twitchDiv.className = 'twitch-info';
-        twitchDiv.innerHTML = `
-          <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
-               alt="Twitch" class="twitch-logo">
-          <a href="https://twitch.tv/${match['Twitch']}" target="_blank" class="twitch-link">
-            ${match['Twitch']}
-          </a>
-        `;
-        wrapper.appendChild(twitchDiv);
-      }
+      wrapper.style.marginBottom = '20px';
 
       const div = document.createElement('div');
       div.className = 'match';
@@ -184,9 +165,33 @@
 
       const format = match['Format'] || '';
       const tid = match['Tid'] || '';
+      const twitch = match['Twitch'];
+
+      const header = document.createElement('div');
+      header.className = 'match-header';
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
+      header.style.marginBottom = '8px';
+
       const topInfo = document.createElement('div');
       topInfo.className = 'top-info';
+      topInfo.style.fontSize = '1.1em';
+      topInfo.style.color = '#ddd';
       topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
+  
+      header.appendChild(topInfo);
+
+      if (twitch) {
+        const twitchDiv = document.createElement('div');
+        twitchDiv.className = 'twitch-info';
+        twitchDiv.innerHTML = `
+          <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" 
+               alt="Twitch" class="twitch-logo">
+          <a href="https://twitch.tv/${twitch}" target="_blank" class="twitch-link">${twitch}</a>
+        `;
+        header.appendChild(twitchDiv);
+      }
 
       const teamA = document.createElement('div');
       teamA.className = 'team';
@@ -196,13 +201,14 @@
       teamB.className = 'team';
       teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
 
-      div.appendChild(topInfo);
+      div.appendChild(header);
       div.appendChild(teamA);
       div.appendChild(teamB);
 
       wrapper.appendChild(div);
       return wrapper;
     }
+
 
     function spacer() {
       const d = document.createElement('div');

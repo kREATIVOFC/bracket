@@ -22,7 +22,7 @@
     .round {
       display: flex;
       flex-direction: column;
-      gap: 40px;
+      gap: 100px;
       align-items: center;
     }
 
@@ -40,12 +40,13 @@
       transform: scale(1.02);
       border-color: #888;
     }
-    .center-info {
+    .top-info {
       text-align: center;
       font-size: 0.9em;
       color: #ccc;
-      margin: 6px 0;
+      margin-bottom: 6px;
     }
+
 
     .team {
       display: flex;
@@ -132,6 +133,12 @@
       const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
       const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
+      const format = match['Format'] || '';
+      const tid = match['Tid'] || '';
+      const topInfo = document.createElement('div');
+      topInfo.className = 'top-info';
+      topInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
+
       const teamA = document.createElement('div');
       teamA.className = 'team';
       teamA.innerHTML = `<img src="${logoA}" alt=""><span class="team-name">${match['Lag A'] || ''}</span><span class="score">${match['Score A'] || ''}</span>`;
@@ -140,18 +147,13 @@
       teamB.className = 'team';
       teamB.innerHTML = `<img src="${logoB}" alt=""><span class="team-name">${match['Lag B'] || ''}</span><span class="score">${match['Score B'] || ''}</span>`;
 
-      const centerInfo = document.createElement('div');
-      centerInfo.className = 'center-info';
-      const format = match['Format'] || '';
-      const tid = match['Tid'] || '';
-      centerInfo.textContent = `${tid}${tid && format ? ' – ' : ''}${format}`;
-
+      div.appendChild(topInfo);
       div.appendChild(teamA);
-      div.appendChild(centerInfo);
       div.appendChild(teamB);
 
       return div;
     }
+
 
 
     function loadBracket() {

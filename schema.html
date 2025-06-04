@@ -7,116 +7,119 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      font-family: 'Teko', sans-serif;
-      color: white;
-    }
-    .content-wrapper {
-      position: absolute;
-      bottom: 50px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+        margin: 0;
+        background-color: #000;
+        font-family: 'Teko', sans-serif;
+        color: white;
     }
 
-    .match-container {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      flex-wrap: wrap;
+        .content-wrapper {
+        padding-top: 50px;
+        padding-bottom: 50px; /* Gör att den inte sitter mot botten */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        }
+
+        .match-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
     }
 
-    .match {
-      border: 2px solid white;
-      background: rgba(15, 15, 15, 0.85);
-      border-radius: 12px;
-      padding: 15px;
-      width: 500px;
-      min-height: 160px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      text-align: center;
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;  /* 💡 Gör hela boxen centrerad vertikalt */
-      align-items: flex;      /* Centrerar horisontellt också */
-      
+        .match {
+        background: rgba(15, 15, 15, 0.85);
+        border: 2px solid white;
+        border-radius: 10px;
+        width: 400px;
+        height: 150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        padding: 0 20px;
+        transition: all 0.3s ease;
     }
 
-
-    .match.highlight {
-      border: 3px solid #ffcc00;
-      box-shadow: 0 0 15px #ffcc00;
-      width: 600px;
+        .match.highlight {
+        border: 3px solid #ffcc00;
+        box-shadow: 0 0 15px #ffcc00;
+        width: 650px;
+        height: 150px; /* Lite högre när det är "Nästa match" */
     }
 
-    .match-inner {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 100%;
+        .teams {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
     }
 
-    .stage {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 6px;
+        .team-side {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 0 10px; /* Luft in från kanterna */
+        flex: 1; /* Låt båda sidor ta lika mycket plats */
     }
 
-    .details {
-      font-size: 18px;
-      color: #ccc;
-      margin-bottom: 10px;
+        .team-logo {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        background-color: #111;
     }
 
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 10px;
-      position: relative;
+        .team-name {
+        font-size: 18px;
+        font-weight: 500;
     }
 
-    .team-side {
-      width: 40%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
+        .score {
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
     }
 
-    .team-logo {
-      width: 120px;
-      height: 120px;
-      object-fit: contain;
-      background-color: #111;
+        .center-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 18px;
+        line-height: 1.2;
+        padding: 0 10px;
+        gap: 4px;
+    }
+        .maps {
+        display: flex;
+        gap: 10px;
+        margin-top: 4px;
+        font-size: 14px;
+        color: #aaa;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+        .maps span {
+        background-color: #222;
+        padding: 2px 6px;
+        border-radius: 4px;
     }
 
-    .team-name {
-      font-size: 20px;
-      font-weight: 500;
+        .stage {
+        font-size: 20px;
+        font-weight: bold;
+        white-space: nowrap;
+        text-align: center;
     }
 
-    .score {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 36px;
-      font-weight: bold;
-      color: #fff;
+        .details {
+        font-size: 16px;
+        color: #ccc;
     }
 
-    .score-left {
-      left: 44%;
-    }
-
-    .score-right {
-      right: 44%;
-    }
   </style>
 </head>
 <body>
@@ -144,63 +147,67 @@
     }
 
     function createMatchElement(match) {
-      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
-      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+        const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+        const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'match';
-      if (match['Nästa'] === 'TRUE') {
-        wrapper.classList.add('highlight');
-      }
+        const wrapper = document.createElement('div');
+        wrapper.className = 'match';
+        if (match['Nästa'] === 'TRUE') {
+            wrapper.classList.add('highlight');
+        }
 
-      const inner = document.createElement('div');
-      inner.className = 'match-inner';
+        const teams = document.createElement('div');
+        teams.className = 'teams';
 
-      const stage = document.createElement('div');
-      stage.className = 'stage';
-      stage.textContent = match.Match || '';
-      inner.appendChild(stage);
+        // Team A
+        const sideA = document.createElement('div');
+        sideA.className = 'team-side';
+        sideA.innerHTML = `
+            <img class="team-logo" src="${logoA}" alt="">
+            <div class="team-name">${match['Lag A'] || ''}</div>
+            <div class="score">${match['Score A'] || ''}</div>
+        `;
 
-      const details = document.createElement('div');
-      details.className = 'details';
-      details.textContent = `${match['Tid'] || ''} – ${match['Format'] || ''}`;
-      inner.appendChild(details);
+        // Center Info
+        const center = document.createElement('div');
+        center.className = 'center-info';
 
-      const teams = document.createElement('div');
-      teams.className = 'teams';
+        const stageName = match['Match'] || '–';
+        const extraStageInfo = match['Stage Info'] || ''; // Ny kolumn för t.ex. "Semifinal #1"
+        center.innerHTML = `
+        <div class="stage">${extraStageInfo || stageName}</div>
+        <div class="details">${match['Tid'] || ''} – ${match['Format'] || ''}</div>
+        ${
+            match['Nästa'] === 'TRUE'
+            ? `<div class="maps">
+                ${match['Karta 1'] ? `<span>${match['Karta 1']}</span>` : ''}
+                ${match['Karta 2'] ? `<span>${match['Karta 2']}</span>` : ''}
+                ${match['Karta 3'] ? `<span>${match['Karta 3']}</span>` : ''}
+                </div>`
+            : ''
+        }
+        `;
 
-      const sideA = document.createElement('div');
-      sideA.className = 'team-side';
-      sideA.innerHTML = `
-        <img class="team-logo" src="${logoA}" alt="">
-        <div class="team-name">${match['Lag A'] || ''}</div>
-      `;
 
-      const sideB = document.createElement('div');
-      sideB.className = 'team-side';
-      sideB.innerHTML = `
-        <img class="team-logo" src="${logoB}" alt="">
-        <div class="team-name">${match['Lag B'] || ''}</div>
-      `;
 
-      const scoreA = document.createElement('div');
-      scoreA.className = 'score score-left';
-      scoreA.textContent = match['Score A'] || '';
+        // Team B
+        const sideB = document.createElement('div');
+        sideB.className = 'team-side';
+        sideB.innerHTML = `
+            <img class="team-logo" src="${logoB}" alt="">
+            <div class="team-name">${match['Lag B'] || ''}</div>
+            <div class="score">${match['Score B'] || ''}</div>
+        `;
 
-      const scoreB = document.createElement('div');
-      scoreB.className = 'score score-right';
-      scoreB.textContent = match['Score B'] || '';
+        teams.appendChild(sideA);
+        teams.appendChild(center);
+        teams.appendChild(sideB);
+        wrapper.appendChild(teams);
 
-      teams.appendChild(sideA);
-      teams.appendChild(sideB);
-      teams.appendChild(scoreA);
-      teams.appendChild(scoreB);
+        return wrapper;
+        }
 
-      inner.appendChild(teams);
-      wrapper.appendChild(inner);
 
-      return wrapper;
-    }
 
     function loadMatches() {
       Papa.parse(BASE + "BracketData", {

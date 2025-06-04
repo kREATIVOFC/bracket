@@ -1,164 +1,154 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Schema</title>
+  <meta charset="UTF-8">
+  <title>Matchschema</title>
   <style>
     body {
       margin: 0;
       background: transparent;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
     }
 
-    #match-container {
-      position: fixed;
+    .schedule-container {
+      position: absolute;
       bottom: 50px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       gap: 20px;
-      z-index: 10;
     }
 
     .match-box {
-      background: #111;
+      background-color: rgba(0, 0, 0, 0.8);
       color: white;
-      border-radius: 12px;
-      padding: 10px 20px;
+      border-radius: 10px;
+      padding: 15px;
       width: 400px;
       height: 200px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
       transition: all 0.3s ease;
-      overflow: hidden;
     }
 
     .match-box.next {
       width: 600px;
-      border: 4px solid yellow;
-      box-shadow: 0 0 20px yellow;
+      border: 2px solid gold;
+      box-shadow: 0 0 15px gold;
     }
 
-    .match-header {
+    .top-row {
       display: flex;
       justify-content: space-between;
       font-size: 18px;
       font-weight: bold;
-      margin-bottom: 5px;
     }
 
     .teams {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
     }
 
     .team {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      width: 100px;
-      text-align: center;
+      gap: 10px;
+      max-width: 45%;
     }
 
-    .team-logo {
-      width: 60px;
-      height: 60px;
+    .team img {
+      height: 40px;
+      width: 40px;
       object-fit: contain;
-      margin-bottom: 5px;
     }
 
     .score {
-      font-size: 18px;
+      font-size: 24px;
       font-weight: bold;
     }
 
     .maps {
+      display: none;
       margin-top: 10px;
-      display: flex;
-      justify-content: space-around;
       font-size: 14px;
-      color: #ccc;
+      line-height: 1.4;
+    }
+
+    .match-box.next .maps {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div id="match-container"></div>
+  <div class="schedule-container" id="schedule"></div>
 
-  <!-- ✅ Först: Ladda PapaParse -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-
-  <!-- ✅ Sedan: Kör all JS när Papa är laddad -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script>
-    const sheetID = "1gxZCHqFgXrhv_BMHfOLZymp0pDbP5BghNgPry8dI-R0";
-    const schemaURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&sheet=Schema`;
-    const logoURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&sheet=Logotabell`;
+    const sheetId = "1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY";
+    const bracketUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=BracketData`;
+    const logosUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Logotabell`;
 
-    let logoMap = {};
+    let logos = {};
 
-    Papa.parse(logoURL, {
+    // Steg 1: Läs in logotabellen
+    Papa.parse(logosUrl, {
       download: true,
       header: true,
-      complete: function (results) {
+      complete: function(results) {
         results.data.forEach(row => {
-          if (row.Lag && row.Logo) {
-            logoMap[row.Lag.trim()] = row.Logo.trim();
-          }
+          logos[row["Lagnamn"]] = row["Logotyp"];
         });
-        fetchMatchData();
+        loadMatches();
       }
     });
 
-    function fetchMatchData() {
-      Papa.parse(schemaURL, {
+    // Steg 2: Läs in schemamatcher
+    function loadMatches() {
+      Papa.parse(bracketUrl, {
         download: true,
         header: true,
-        complete: function (results) {
-          const data = results.data;
-          const stages = ["QF", "SF", "F"];
-          const container = document.getElementById("match-container");
-          container.innerHTML = "";
-
-          stages.forEach(stage => {
-            const match = data.find(row => row.Stage === stage);
-            if (!match) return;
-
-            const box = document.createElement("div");
-            box.className = "match-box";
-            const isNext = match.Nästa && match.Nästa.toLowerCase() === "ja";
-            if (isNext) box.classList.add("next");
-
-            box.innerHTML = `
-              <div class="match-header">
-                <span>${match.Stage}</span>
-                <span>${match.Tid || ""} • ${match.Format || ""}</span>
-              </div>
-              <div class="teams">
-                <div class="team">
-                  <img class="team-logo" src="${logoMap[match.Lag1] || ''}" />
-                  <div>${match.Lag1 || ""}</div>
-                  <div class="score">${match.Score1 || 0}</div>
-                </div>
-                <div class="team">
-                  <img class="team-logo" src="${logoMap[match.Lag2] || ''}" />
-                  <div>${match.Lag2 || ""}</div>
-                  <div class="score">${match.Score2 || 0}</div>
-                </div>
-              </div>
-              ${isNext ? `
-                <div class="maps">
-                  <div>${match.Karta1 || ''}</div>
-                  <div>${match.Karta2 || ''}</div>
-                  <div>${match.Karta3 || ''}</div>
-                </div>
-              ` : ``}
-            `;
-            container.appendChild(box);
-          });
+        complete: function(results) {
+          const matches = results.data.filter(row => row["Schema"]?.trim() === "✔️").slice(0, 3);
+          renderMatches(matches);
         }
+      });
+    }
+
+    // Steg 3: Rendera 3 matchboxar
+    function renderMatches(matches) {
+      const container = document.getElementById("schedule");
+      container.innerHTML = "";
+
+      matches.forEach(match => {
+        const isNext = match["Nästa"]?.trim() === "✔️";
+        const box = document.createElement("div");
+        box.className = "match-box" + (isNext ? " next" : "");
+
+        box.innerHTML = `
+          <div class="top-row">
+            <div>${match["Match"]}</div>
+            <div>${match["Tid"]} – ${match["Format"]}</div>
+          </div>
+          <div class="teams">
+            <div class="team">
+              <img src="${logos[match["Lag A"]] || ''}" alt="${match["Lag A"]}">
+              <div>${match["Lag A"]}</div>
+            </div>
+            <div class="score">${match["Score A"]} – ${match["Score B"]}</div>
+            <div class="team" style="flex-direction: row-reverse; text-align: right;">
+              <img src="${logos[match["Lag B"]] || ''}" alt="${match["Lag B"]}">
+              <div>${match["Lag B"]}</div>
+            </div>
+          </div>
+          <div class="maps">
+            <div>${match["Karta1"] || ""}</div>
+            <div>${match["Karta2"] || ""}</div>
+            <div>${match["Karta3"] || ""}</div>
+          </div>
+        `;
+        container.appendChild(box);
       });
     }
   </script>

@@ -7,7 +7,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
-      height: 100%;
       margin: 0;
       padding: 0;
       background-color: #000;
@@ -23,11 +22,6 @@
       align-items: center;
     }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
     .match-container {
       display: flex;
       justify-content: center;
@@ -41,12 +35,17 @@
       border-radius: 12px;
       padding: 15px;
       width: 500px;
-      min-height: 100px;
-      overflow: hidden;
+      min-height: 160px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       text-align: center;
       transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;  /* 💡 Gör hela boxen centrerad vertikalt */
+      align-items: flex;      /* Centrerar horisontellt också */
+      
     }
+
 
     .match.highlight {
       border: 3px solid #ffcc00;
@@ -54,16 +53,23 @@
       width: 600px;
     }
 
+    .match-inner {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+    }
+
     .stage {
       font-size: 18px;
       font-weight: bold;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .details {
       font-size: 18px;
       color: #ccc;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
     .teams {
@@ -76,24 +82,23 @@
 
     .team-side {
       width: 40%;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
     }
 
     .team-logo {
-      width: 80px;
-      height: 80px;
+      width: 120px;
+      height: 120px;
       object-fit: contain;
-      aspect-ratio: 1 / 1;
-      display: block;
-      margin: 0 auto 6px;
-      background-color: #111; /* valfritt: för att se ytan även om logo är genomskinlig */
+      background-color: #111;
     }
-
 
     .team-name {
       font-size: 20px;
       font-weight: 500;
-      margin-top: 4px;
     }
 
     .score {
@@ -112,13 +117,12 @@
     .score-right {
       right: 44%;
     }
-
   </style>
 </head>
 <body>
-    <div class="content-wrapper">
+  <div class="content-wrapper">
     <div class="match-container" id="matches"></div>
-</div>
+  </div>
 
   <script>
     const SHEET_ID = '1Fjlv7GXe2eU0oFRJC3ubNhuxnYa0KIFgngrqlUcA5lY';
@@ -149,23 +153,22 @@
         wrapper.classList.add('highlight');
       }
 
-      // Stage (QF1, SF2 etc)
+      const inner = document.createElement('div');
+      inner.className = 'match-inner';
+
       const stage = document.createElement('div');
       stage.className = 'stage';
       stage.textContent = match.Match || '';
-      wrapper.appendChild(stage);
+      inner.appendChild(stage);
 
-      // Time and Format
       const details = document.createElement('div');
       details.className = 'details';
       details.textContent = `${match['Tid'] || ''} – ${match['Format'] || ''}`;
-      wrapper.appendChild(details);
+      inner.appendChild(details);
 
-      // Teams container
       const teams = document.createElement('div');
       teams.className = 'teams';
 
-      // Left team
       const sideA = document.createElement('div');
       sideA.className = 'team-side';
       sideA.innerHTML = `
@@ -173,7 +176,6 @@
         <div class="team-name">${match['Lag A'] || ''}</div>
       `;
 
-      // Right team
       const sideB = document.createElement('div');
       sideB.className = 'team-side';
       sideB.innerHTML = `
@@ -181,7 +183,6 @@
         <div class="team-name">${match['Lag B'] || ''}</div>
       `;
 
-      // Scores (centered between logos)
       const scoreA = document.createElement('div');
       scoreA.className = 'score score-left';
       scoreA.textContent = match['Score A'] || '';
@@ -195,7 +196,8 @@
       teams.appendChild(scoreA);
       teams.appendChild(scoreB);
 
-      wrapper.appendChild(teams);
+      inner.appendChild(teams);
+      wrapper.appendChild(inner);
 
       return wrapper;
     }

@@ -88,7 +88,10 @@
 <body>
   <div id="match-container"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.3.2/papaparse.min.js"></script>
+  <!-- ✅ Först: Ladda PapaParse -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+  <!-- ✅ Sedan: Kör all JS när Papa är laddad -->
   <script>
     const sheetID = "1gxZCHqFgXrhv_BMHfOLZymp0pDbP5BghNgPry8dI-R0";
     const schemaURL = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:csv&sheet=Schema`;

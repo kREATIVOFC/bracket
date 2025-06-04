@@ -7,124 +7,132 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
-        margin: 0;
-        background-color: #000;
-        font-family: 'Teko', sans-serif;
-        color: white;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end; /* Trycker ner allt till botten */
+      margin: 0;
+      background-color: #000;
+      font-family: 'Teko', sans-serif;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     }
 
-        .content-wrapper {
-        padding-bottom: 50px; /* Luft från botten */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    .content-wrapper {
+      padding-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-
-
-        .match-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 30px;
-        justify-content: center;
+    .match-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
     }
 
-        .match {
-        background: rgba(15, 15, 15, 0.85);
-        border: 2px solid white;
-        border-radius: 10px;
-        width: 400px;
-        height: 150px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        position: relative;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        padding: 0 20px;
-        transition: all 0.3s ease;
+    .match {
+      background: rgba(15, 15, 15, 0.85);
+      border: 2px solid white;
+      border-radius: 10px;
+      width: 400px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      padding: 0 20px;
+      transition: all 0.3s ease;
     }
 
-        .match.highlight {
-        border: 3px solid #ffcc00;
-        box-shadow: 0 0 15px #ffcc00;
-        width: 650px;
-        height: 150px; /* Lite högre när det är "Nästa match" */
+    .match.highlight {
+      border: 3px solid #ffcc00;
+      box-shadow: 0 0 15px #ffcc00;
+      width: 650px;
+      height: 150px;
     }
 
-        .teams {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
     }
 
-        .team-side {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        padding: 0 10px; /* Luft in från kanterna */
-        flex: 1; /* Låt båda sidor ta lika mycket plats */
+    .team-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px;
+      flex: 1;
     }
 
-        .team-logo {
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
-        background-color: #111;
+    .team-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-        .team-name {
-        font-size: 18px;
-        font-weight: 500;
+    .team-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      background-color: #111;
     }
 
-        .score {
-        font-size: 24px;
-        font-weight: bold;
-        color: #fff;
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+      color: #fff;
+      min-width: 24px;
+      text-align: center;
     }
 
-        .center-info {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        font-size: 18px;
-        line-height: 1.2;
-        padding: 0 10px;
-        gap: 4px;
-    }
-        .maps {
-        display: flex;
-        gap: 10px;
-        margin-top: 4px;
-        font-size: 14px;
-        color: #aaa;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-        .maps span {
-        background-color: #222;
-        padding: 2px 6px;
-        border-radius: 4px;
+    .team-name {
+      font-size: 18px;
+      font-weight: 500;
+      text-align: center;
     }
 
-        .stage {
-        font-size: 20px;
-        font-weight: bold;
-        white-space: nowrap;
-        text-align: center;
+    .center-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 18px;
+      line-height: 1.2;
+      padding: 0 10px;
+      gap: 4px;
     }
 
-        .details {
-        font-size: 16px;
-        color: #ccc;
+    .maps {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 14px;
+      color: #aaa;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
+    .maps span {
+      background-color: #222;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .stage {
+      font-size: 20px;
+      font-weight: bold;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .details {
+      font-size: 16px;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -152,67 +160,71 @@
     }
 
     function createMatchElement(match) {
-        const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
-        const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'match';
-        if (match['Nästa'] === 'TRUE') {
-            wrapper.classList.add('highlight');
-        }
+      const wrapper = document.createElement('div');
+      wrapper.className = 'match';
+      if (match['Nästa'] === 'TRUE') {
+        wrapper.classList.add('highlight');
+      }
 
-        const teams = document.createElement('div');
-        teams.className = 'teams';
+      const teams = document.createElement('div');
+      teams.className = 'teams';
 
-        // Team A
+      // Team A (vänster)
         const sideA = document.createElement('div');
         sideA.className = 'team-side';
         sideA.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
             <img class="team-logo" src="${logoA}" alt="">
             <div class="team-name">${match['Lag A'] || ''}</div>
+            </div>
             <div class="score">${match['Score A'] || ''}</div>
+        </div>
         `;
 
-        // Center Info
-        const center = document.createElement('div');
-        center.className = 'center-info';
+      // Center Info
+      const center = document.createElement('div');
+      center.className = 'center-info';
 
-        const stageName = match['Match'] || '–';
-        const extraStageInfo = match['Stage Info'] || ''; // Ny kolumn för t.ex. "Semifinal #1"
-        center.innerHTML = `
+      const stageName = match['Match'] || '–';
+      const extraStageInfo = match['Stage Info'] || '';
+      center.innerHTML = `
         <div class="stage">${extraStageInfo || stageName}</div>
         <div class="details">${match['Tid'] || ''} – ${match['Format'] || ''}</div>
         ${
-            match['Nästa'] === 'TRUE'
+          match['Nästa'] === 'TRUE'
             ? `<div class="maps">
                 ${match['Karta 1'] ? `<span>${match['Karta 1']}</span>` : ''}
                 ${match['Karta 2'] ? `<span>${match['Karta 2']}</span>` : ''}
                 ${match['Karta 3'] ? `<span>${match['Karta 3']}</span>` : ''}
-                </div>`
+              </div>`
             : ''
         }
-        `;
+      `;
 
-
-
-        // Team B
+      // Team B (höger – spegelvänd)
         const sideB = document.createElement('div');
         sideB.className = 'team-side';
         sideB.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px; flex-direction: row-reverse;">
+            <div style="display: flex; flex-direction: column; align-items: center;">
             <img class="team-logo" src="${logoB}" alt="">
             <div class="team-name">${match['Lag B'] || ''}</div>
+            </div>
             <div class="score">${match['Score B'] || ''}</div>
+        </div>
         `;
 
-        teams.appendChild(sideA);
-        teams.appendChild(center);
-        teams.appendChild(sideB);
-        wrapper.appendChild(teams);
+      teams.appendChild(sideA);
+      teams.appendChild(center);
+      teams.appendChild(sideB);
+      wrapper.appendChild(teams);
 
-        return wrapper;
-        }
-
-
+      return wrapper;
+    }
 
     function loadMatches() {
       Papa.parse(BASE + "BracketData", {

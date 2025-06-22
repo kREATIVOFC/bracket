@@ -13,11 +13,22 @@
       padding: 40px;
     }
 
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      transform: translateY(-60px); /* 👈 flyttar nedåt 30px */
+    }
+
+
     .bracket {
       display: flex;
       justify-content: space-around;
       align-items: flex-start;
       flex-wrap: wrap;
+      gap: 100px;
     }
 
     .round {
@@ -33,15 +44,20 @@
     }
 
     .match {
-      border: 2px solid white;
-      background: rgba(15, 15, 15, 0.85);
+      border: 2px solid;
+      border-image: linear-gradient(to bottom, #9d2dfd, #0693cf);
+      border-image-slice: 1;
+
+      background: linear-gradient(to bottom, #1f0933, #022433);
       border-radius: 12px;
       padding: 10px 15px;
       width: 280px;
       height: auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       transition: transform 0.2s ease;
+      color: white;
     }
+
 
     .match:hover {
       transform: scale(1.02);
@@ -116,6 +132,7 @@
 
     .match.next {
       border-color: #ffcc00;
+      border-image: none;
       box-shadow: 0 0 15px #ffcc00;
       position: relative;
     }
@@ -135,16 +152,14 @@
   </style>
 </head>
 <body>
-  <h2>Turneringsbracket</h2>
-  <div class="bracket" id="bracket">
-    <div class="round" id="qf">
-      <h3>Kvartsfinal</h3>
-    </div>
-    <div class="round centered" id="sf">
-      <h3>Semifinal</h3>
-    </div>
-    <div class="round centered" id="f">
-      <h3>Final</h3>
+  <div class="wrapper">
+    <div class="bracket" id="bracket">
+      <div class="round" id="qf">
+      </div>
+      <div class="round centered" id="sf">
+      </div>
+      <div class="round centered" id="f">
+      </div>
     </div>
   </div>
 

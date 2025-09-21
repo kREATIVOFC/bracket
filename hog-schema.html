@@ -61,24 +61,23 @@
   <div id="matches"></div>
 
   <script>
-    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData";
-    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv";
+    const SHEET_ID = '1GByjCuMMZSxk9EyvJ3ImA385UGYiKyl4oZgeEJq-XAA';
+    const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
+
+    const MATCHES_URL = BASE + "SchemaData";
+    const LOGOS_URL   = BASE + "Logotabell";
 
     let logos = {};
 
-    // Ladda logotabellen
+    // Ladda logotabellen (utan extra kontroller, exakt som gamla koden)
     function loadLogos() {
       Papa.parse(LOGOS_URL, {
         download: true,
         header: true,
         complete: function(results) {
-          console.log("Rubriker som PapaParse ser:", results.meta.fields);
           results.data.forEach(row => {
-            if(row['Lag'] && row['Länk']) {
-              logos[row['Lag']] = row['Länk'];
-            }
+            logos[row['Lag']] = row['Länk'];
           });
-          console.log("Logos objekt:", logos);
           loadMatches();
         }
       });
@@ -113,7 +112,6 @@
       return wrapper;
     }
 
-    // Ladda matcher
     function loadMatches() {
       Papa.parse(MATCHES_URL, {
         download: true,
@@ -123,7 +121,7 @@
           container.innerHTML = '';
 
           results.data.forEach(match => {
-            if(match['Visa'] && match['Visa'].toLowerCase() === 'true') {
+            if (match['Visa'] && match['Visa'].toLowerCase() === 'true') {
               const el = createMatchElement(match);
               container.appendChild(el);
             }
@@ -132,7 +130,6 @@
       });
     }
 
-    // Start
     loadLogos();
     setInterval(loadLogos, 30000);
   </script>

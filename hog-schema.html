@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <title>Högschema</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Teko:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Teko', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 0;
+      gap: 25px;
+    }
+
+    .match-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      font-size: 26px;
+    }
+
+    .team-name {
+      min-width: 150px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 26px;
+    }
+
+    .team-logo {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      background-color: transparent;
+    }
+
+    .vs-result {
+      font-size: 28px;
+      font-weight: bold;
+      padding: 0 15px;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .extra-info {
+      font-size: 18px;
+      color: #aaa;
+      text-align: center;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="matches"></div>
+
+  <script>
+    // 🔹 Ändra till ditt nya Google Sheet-ID
+    const SHEET_ID = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv";
+    const BASE = `https://docs.google.com/spreadsheets/d/SchemaData/gviz/tq?tqx=out:csv&sheet=`;
+
+    let logos = {};
+
+    // Ladda logotabellen
+    function loadLogos() {
+      Papa.parse(BASE + "Logotabell", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          results.data.forEach(row => {
+            logos[row['Lag']] = row['Länk'];
+          });
+          loadMatches();
+        }
+      });
+    }
+
+    // Skapa match-raden
+    function createMatchElement(match) {
+      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+
+      const scoreA = match['Score A'] || '';
+      const scoreB = match['Score B'] || '';
+      const resultText = (scoreA || scoreB) ? `${scoreA} - ${scoreB}` : "VS";
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'match-row';
+
+      wrapper.innerHTML = `
+        <div class="team-name">${match['Lag A'] || ''}</div>
+        <img class="team-logo" src="${logoA}" alt="">
+        <div class="vs-result">${resultText}</div>
+        <img class="team-logo" src="${logoB}" alt="">
+        <div class="team-name">${match['Lag B'] || ''}</div>
+      `;
+
+      // Lägg till extra info (Tid + Format + Twitch)
+      if (match['Tid'] || match['Format'] || match['Twitch']) {
+        const extra = document.createElement('div');
+        extra.className = 'extra-info';
+        extra.textContent = `${match['Tid'] || ''} ${match['Format'] || ''} ${match['Twitch'] || ''}`;
+        wrapper.appendChild(extra);
+      }
+
+      return wrapper;
+    }
+
+    // Ladda matcher
+    function loadMatches() {
+      Papa.parse(BASE + "SchemaData", {
+        download: true,
+        header: true,
+        complete: function(results) {
+          const container = document.getElementById('matches');
+          container.innerHTML = '';
+
+          results.data.forEach(match => {
+            if (match['Visa'] && match['Visa'].toLowerCase() === 'true') {
+              const el = createMatchElement(match);
+              container.appendChild(el);
+            }
+          });
+        }
+      });
+    }
+
+    // Start
+    loadLogos();
+    setInterval(loadLogos, 30000); // uppdaterar var 30:e sekund
+  </script>
+</body>
+</html>

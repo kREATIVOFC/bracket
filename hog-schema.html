@@ -61,9 +61,9 @@
   <div id="matches"></div>
 
   <script>
-    // 🔹 Direkta CSV-länkar till dina Google Sheets-flikar
-    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData";
-    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=Logotabell";
+    // 🔹 Publicerade CSV-länkar till dina Google Sheets-flikar
+    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData"; // t.ex. .../pub?output=csv&sheet=SchemaData
+    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=Logotabell";  // t.ex. .../pub?output=csv&sheet=Logotabell
 
     let logos = {};
 
@@ -73,18 +73,28 @@
         download: true,
         header: true,
         complete: function(results) {
+          console.log("LOAD LOGOS - raw results:", results.data);
           results.data.forEach(row => {
-            logos[row['Lag']] = row['Länk'];
+            console.log("Row in Logotabell:", row);
+            if (row['Lag'] && row['Länk']) {
+              logos[row['Lag']] = row['Länk'];
+            } else {
+              console.warn("Fel kolumnnamn i Logotabell-raden:", row);
+            }
           });
+          console.log("Logos objekt efter inläsning:", logos);
           loadMatches();
         }
       });
     }
 
-    // Skapa match-raden
     function createMatchElement(match) {
-      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
-      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
+      console.log("Skapar match:", match);
+      console.log("Matcherar logo för:", match['Lag A'], "=>", logos[match['Lag A']]);
+      console.log("Matcherar logo för:", match['Lag B'], "=>", logos[match['Lag B']]);
+
+      const logoA = logos[match['Lag A']] || '';
+      const logoB = logos[match['Lag B']] || '';
 
       const scoreA = match['Score A'] || '';
       const scoreB = match['Score B'] || '';

@@ -61,15 +61,15 @@
   <div id="matches"></div>
 
   <script>
-    // 🔹 Ändra till ditt nya Google Sheet-ID
-    const SHEET_ID = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv";
-    const BASE = `https://docs.google.com/spreadsheets/d/SchemaData/gviz/tq?tqx=out:csv&sheet=`;
+    // 🔹 Direkta CSV-länkar till dina Google Sheets-flikar
+    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData";
+    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=Logotabell";
 
     let logos = {};
 
     // Ladda logotabellen
     function loadLogos() {
-      Papa.parse(BASE + "Logotabell", {
+      Papa.parse(LOGOS_URL, {
         download: true,
         header: true,
         complete: function(results) {
@@ -114,7 +114,7 @@
 
     // Ladda matcher
     function loadMatches() {
-      Papa.parse(BASE + "SchemaData", {
+      Papa.parse(MATCHES_URL, {
         download: true,
         header: true,
         complete: function(results) {

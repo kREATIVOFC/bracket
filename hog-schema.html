@@ -61,9 +61,8 @@
   <div id="matches"></div>
 
   <script>
-    // 🔹 Publicerade CSV-länkar till dina Google Sheets-flikar
-    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData"; // t.ex. .../pub?output=csv&sheet=SchemaData
-    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=Logotabell";  // t.ex. .../pub?output=csv&sheet=Logotabell
+    const MATCHES_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv&sheet=SchemaData";
+    const LOGOS_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTfnNkhKk9oJz8YG4YuceJ8HOYXPnbs-OAcenvE9l0YtMucIznVli445Wl7q7ikz-xOq6oA5cxB54UG/pub?output=csv";
 
     let logos = {};
 
@@ -73,28 +72,21 @@
         download: true,
         header: true,
         complete: function(results) {
-          console.log("LOAD LOGOS - raw results:", results.data);
+          console.log("Rubriker som PapaParse ser:", results.meta.fields);
           results.data.forEach(row => {
-            console.log("Row in Logotabell:", row);
-            if (row['Lag'] && row['Länk']) {
+            if(row['Lag'] && row['Länk']) {
               logos[row['Lag']] = row['Länk'];
-            } else {
-              console.warn("Fel kolumnnamn i Logotabell-raden:", row);
             }
           });
-          console.log("Logos objekt efter inläsning:", logos);
+          console.log("Logos objekt:", logos);
           loadMatches();
         }
       });
     }
 
     function createMatchElement(match) {
-      console.log("Skapar match:", match);
-      console.log("Matcherar logo för:", match['Lag A'], "=>", logos[match['Lag A']]);
-      console.log("Matcherar logo för:", match['Lag B'], "=>", logos[match['Lag B']]);
-
-      const logoA = logos[match['Lag A']] || '';
-      const logoB = logos[match['Lag B']] || '';
+      const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
+      const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
 
       const scoreA = match['Score A'] || '';
       const scoreB = match['Score B'] || '';
@@ -111,7 +103,6 @@
         <div class="team-name">${match['Lag B'] || ''}</div>
       `;
 
-      // Lägg till extra info (Tid + Format + Twitch)
       if (match['Tid'] || match['Format'] || match['Twitch']) {
         const extra = document.createElement('div');
         extra.className = 'extra-info';
@@ -132,7 +123,7 @@
           container.innerHTML = '';
 
           results.data.forEach(match => {
-            if (match['Visa'] && match['Visa'].toLowerCase() === 'true') {
+            if(match['Visa'] && match['Visa'].toLowerCase() === 'true') {
               const el = createMatchElement(match);
               container.appendChild(el);
             }
@@ -143,7 +134,7 @@
 
     // Start
     loadLogos();
-    setInterval(loadLogos, 30000); // uppdaterar var 30:e sekund
+    setInterval(loadLogos, 30000);
   </script>
 </body>
 </html>

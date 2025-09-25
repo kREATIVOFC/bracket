@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<title>Ligatabell</title>
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@300..700&family=Sedgwick+Ave&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    background-color: #000;
+    font-family: 'Teko', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    color: white;
+    padding-top: 120px;
+  }
+
+  .table-wrapper {
+    width: 1400px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  }
+
+  .table-header {
+    background: linear-gradient(90deg, #a3e635, #52751a);
+    padding: 15px 20px;
+    font-size: 32px;
+    font-family: 'Sedgwick Ave', cursive;
+    text-align: center;
+    color: #fff;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
+  }
+
+  table.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  table.styled-table th, table.styled-table td {
+    padding: 12px;
+    text-align: center;
+    font-size: 26px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  table.styled-table th {
+    background: #222;
+    color: #fff;
+    font-weight: 700;
+    border-bottom: 2px solid #a3e635;
+  }
+
+  /* Streck mellan rader */
+  table.styled-table tr {
+    border-bottom: 1px solid #333;
+    background-color: #111111f8; /* Sätt bakgrund här istället för på td */
+  }
+
+  /* Tjockare streck under topp 4 */
+  table.styled-table tr.top-4 {
+    border-bottom: 3px solid #a3e635;
+  }
+
+  .team-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: flex-start;
+  }
+
+  .team-cell img {
+    width: 60px;
+    height: 40px;
+    object-fit: contain;
+    background: transparent;
+  }
+
+  /* Sätt lika bredd på MS, V, OTV, OTF, F */
+  .col-ms, .col-v, .col-otv, .col-otf, .col-f {
+    width: 80px;
+  }
+
+  /* Poäng och Rundskillnad längst till höger */
+  .col-poäng, .col-rund {
+    width: 100px;
+  }
+
+  /* Placering kolumn smalare */
+  .col-placering {
+    width: 50px;
+  }
+</style>
+</head>
+<body>
+<div class="table-wrapper">
+  <div class="table-header">Ligatabell – Grupp A</div>
+  <table class="styled-table">
+    <thead>
+        <tr>
+            <th class="col-placering">#</th>
+            <th>Lag</th>
+            <th class="col-ms">MS</th>
+            <th class="col-v">V</th>
+            <th class="col-otv">OTV</th>
+            <th class="col-otf">OTF</th>
+            <th class="col-f">F</th>
+            <th class="col-rund">Runddiff</th>
+            <th class="col-poäng">Poäng</th>
+        </tr>
+    </thead>
+
+    <tbody id="table-body">
+      <!-- Rows laddas via JS -->
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script>
+const SHEET_ID = '1GByjCuMMZSxk9EyvJ3ImA385UGYiKyl4oZgeEJq-XAA';
+const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
+const TABLE_URL = BASE + "Tabell Grupp A";
+const LOGOS_URL  = BASE + "Logotabell";
+
+let logos = {};
+
+// Ladda logotyper
+Papa.parse(LOGOS_URL, {download:true, header:true, complete: results => {
+  results.data.forEach(row => logos[row['Lag']] = row['Länk']);
+  loadTable();
+}});
+
+function loadTable(){
+  Papa.parse(TABLE_URL, {download:true, header:true, complete: results => {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    results.data.forEach((row,i) => {
+      const tr = document.createElement('tr');
+      if(i===3) tr.classList.add('top-4'); // Linje under 4:e laget
+
+      tr.innerHTML = `
+        <td class="col-placering">${i+1}</td> <!-- Placering -->
+        <td class="team-cell">
+            <img src="${logos[row['Lag']]||'logos/Placeholder.png'}" alt="">
+            ${row['Lag']}
+        </td>
+        <td class="col-ms">${row['MS']||''}</td>
+        <td class="col-v">${row['V']||''}</td>
+        <td class="col-otv">${row['OTV']||''}</td>
+        <td class="col-otf">${row['OTF']||''}</td>
+        <td class="col-f">${row['F']||''}</td>
+        <td class="col-rund">${row['Rundskillnad']||''}</td>
+        <td class="col-poäng">${row['Poäng']||''}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }});
+}
+</script>
+</body>
+</html>

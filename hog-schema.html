@@ -2,8 +2,8 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <title>Högschema</title>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Teko:wght@300..700&display=swap" rel="stylesheet">
+  <title>Högschema Centrerat Horisontellt</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Teko:wght@300..700&family=Sedgwick+Ave&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     body {
@@ -15,44 +15,66 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      padding: 40px 0;
-      gap: 25px;
+      padding: 250px 0;
+      gap: 50px;
     }
 
-    .match-row {
+    .match-wrapper {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 1));
+    }
+
+    .vs-result {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: sedgwick ave;
+      font-size: 50px;
+      font-weight: bold;
+      text-align: center;
+      color: #a3e635;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      white-space: nowrap;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.9);
+    }
+
+    .team-a, .team-b {
+      position: absolute;
+      top: 50%;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 20px;
-      font-size: 26px;
+      gap: 10px;
+      transform: translateY(-50%);
     }
 
+    .team-a { right: calc(50% + 100px); flex-direction: row; }
+    .team-b { left: calc(50% + 100px); flex-direction: row; }
+
     .team-name {
-      min-width: 150px;
-      text-align: center;
       font-weight: 600;
-      font-size: 26px;
+      font-size: 75px;
+      white-space: nowrap;
+      max-width: 670px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .team-logo {
-      width: 70px;
-      height: 70px;
+      width: 140px;
+      height: 120px;
       object-fit: contain;
       background-color: transparent;
     }
 
-    .vs-result {
-      font-size: 28px;
-      font-weight: bold;
-      padding: 0 15px;
-      min-width: 140px;
-      text-align: center;
-    }
-
     .extra-info {
-      font-size: 18px;
-      color: #aaa;
       text-align: center;
+      font-size: 26px;
+      color: #ffffff;
       margin-top: 4px;
     }
   </style>
@@ -63,21 +85,17 @@
   <script>
     const SHEET_ID = '1GByjCuMMZSxk9EyvJ3ImA385UGYiKyl4oZgeEJq-XAA';
     const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=`;
-
     const MATCHES_URL = BASE + "SchemaData";
-    const LOGOS_URL   = BASE + "Logotabell";
+    const LOGOS_URL = BASE + "Logotabell";
 
     let logos = {};
 
-    // Ladda logotabellen (utan extra kontroller, exakt som gamla koden)
     function loadLogos() {
       Papa.parse(LOGOS_URL, {
         download: true,
         header: true,
         complete: function(results) {
-          results.data.forEach(row => {
-            logos[row['Lag']] = row['Länk'];
-          });
+          results.data.forEach(row => { logos[row['Lag']] = row['Länk']; });
           loadMatches();
         }
       });
@@ -86,21 +104,30 @@
     function createMatchElement(match) {
       const logoA = logos[match['Lag A']] || 'logos/Placeholder.png';
       const logoB = logos[match['Lag B']] || 'logos/Placeholder.png';
-
       const scoreA = match['Score A'] || '';
       const scoreB = match['Score B'] || '';
       const resultText = (scoreA || scoreB) ? `${scoreA} - ${scoreB}` : "VS";
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'match-row';
+      wrapper.className = 'match-wrapper';
 
-      wrapper.innerHTML = `
-        <div class="team-name">${match['Lag A'] || ''}</div>
-        <img class="team-logo" src="${logoA}" alt="">
-        <div class="vs-result">${resultText}</div>
-        <img class="team-logo" src="${logoB}" alt="">
-        <div class="team-name">${match['Lag B'] || ''}</div>
-      `;
+      const vs = document.createElement('div');
+      vs.className = 'vs-result';
+      vs.textContent = resultText;
+
+      // Lag A
+      const teamA = document.createElement('div');
+      teamA.className = 'team-a';
+      teamA.innerHTML = `<div class="team-name">${match['Lag A'] || ''}</div><img class="team-logo" src="${logoA}" alt="">`;
+
+      // Lag B
+      const teamB = document.createElement('div');
+      teamB.className = 'team-b';
+      teamB.innerHTML = `<img class="team-logo" src="${logoB}" alt=""><div class="team-name">${match['Lag B'] || ''}</div>`;
+
+      wrapper.appendChild(vs);
+      wrapper.appendChild(teamA);
+      wrapper.appendChild(teamB);
 
       if (match['Tid'] || match['Format'] || match['Twitch']) {
         const extra = document.createElement('div');
@@ -112,18 +139,48 @@
       return wrapper;
     }
 
+    function autoscaleText(element, maxFontSize = 75, minFontSize = 16) {
+      if (element.dataset.fontsize) return; // behåll tidigare font-size
+      const parentWidth = element.parentElement.offsetWidth;
+      let fontSize = maxFontSize;
+      element.style.fontSize = fontSize + "px";
+      while (element.scrollWidth > parentWidth && fontSize > minFontSize) {
+        fontSize--;
+        element.style.fontSize = fontSize + "px";
+      }
+      element.dataset.fontsize = element.style.fontSize; // spara fontstorleken
+    }
+
     function loadMatches() {
       Papa.parse(MATCHES_URL, {
         download: true,
         header: true,
         complete: function(results) {
           const container = document.getElementById('matches');
-          container.innerHTML = '';
 
           results.data.forEach(match => {
             if (match['Visa'] && match['Visa'].toLowerCase() === 'true') {
-              const el = createMatchElement(match);
-              container.appendChild(el);
+              // Kontrollera om element redan finns baserat på lag-namn
+              const existing = Array.from(container.children).find(wrapper => {
+                return wrapper.querySelector('.team-a .team-name').textContent === match['Lag A'] &&
+                       wrapper.querySelector('.team-b .team-name').textContent === match['Lag B'];
+              });
+
+              if (existing) {
+                // Uppdatera bara score/extra-info
+                const vs = existing.querySelector('.vs-result');
+                vs.textContent = (match['Score A'] || match['Score B']) ? `${match['Score A'] || ''} - ${match['Score B'] || ''}` : "VS";
+
+                const extra = existing.querySelector('.extra-info');
+                if (extra) {
+                  extra.textContent = `${match['Tid'] || ''} ${match['Format'] || ''} ${match['Twitch'] || ''}`;
+                }
+              } else {
+                // Skapa nytt element
+                const newElem = createMatchElement(match);
+                container.appendChild(newElem);
+                newElem.querySelectorAll('.team-name').forEach(el => autoscaleText(el));
+              }
             }
           });
         }

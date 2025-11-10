@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Företagskampen – Slutspel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <style>
+    body {
+      background-color: #000;
+      font-family: 'Teko', sans-serif;
+      color: white;
+      padding: 40px;
+      margin: 0;
+    }
+
+    /* ——— Titel ovanför bracket ——— */
+    .main-title {
+      text-align: center;
+      font-size: 64px;
+      font-weight: 600;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 10px;
+      margin-bottom: -100px;
+      text-shadow: 0 0 10px #25aa9d;
+    }
+
+    .wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+      transform: translateY(-60px);
+    }
+
+    /* ——— Bracket layout ——— */
+    .bracket {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 100px;
+    }
+    .round {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .round.centered {
+      align-items: center;
+      gap: 50px;
+    }
+    .match {
+      border: 2px solid;
+      border-image: linear-gradient(to bottom, #25aa9d, #8beb10);
+      border-image-slice: 1;
+      background: linear-gradient(to bottom, #082421, #264004);
+      border-radius: 12px;
+      padding: 10px 15px;
+      width: 350px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      color: white;
+    }
+    .team {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+      font-size: 26px;
+    }
+    .team img {
+      max-width: 45px;
+      max-height: 45px;
+      object-fit: contain;
+      margin-right: 10px;
+      border-radius: 6px;
+    }
+    .top-info {
+      text-align: left;
+      font-size: 1.1em;
+      color: #ddd;
+      text-transform: uppercase;
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+      width: 100%;
+    }
+    #sf { gap: 60px; }
+    #f  { gap: 20px; }
+  </style>
+</head>
+<body>
+  <!-- ⭐ Titel utanför wrappern -->
+  <h1 class="main-title">Slutspelsbracket</h1>
+
+  <div class="wrapper">
+    <div class="bracket" id="bracket">
+      <div class="round" id="qf"><h3>Kvartsfinal</h3></div>
+      <div class="round centered" id="sf"><h3>Semifinal</h3></div>
+      <div class="round centered" id="f"><h3>Final</h3></div>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGtA7EBzTt5aEP7mqaJi_KCS8JgSAZQUFcvz0TW2YGlbmSIFWXtw8BMbZCDQYC0ZN7bMri7EDN9T70/pub?gid=0&single=true&output=csv";
+    const LOGO_SHEET = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGtA7EBzTt5aEP7mqaJi_KCS8JgSAZQUFcvz0TW2YGlbmSIFWXtw8BMbZCDQYC0ZN7bMri7EDN9T70/pub?gid=469624222&single=true&output=csv";
+
+    let logos = {};
+    let refreshInterval = null;
+    let autoRefreshEnabled = false;
+
+    if (new URLSearchParams(location.search).get("auto") === "1") {
+      autoRefreshEnabled = true;
+    }
+
+    function freshUrl(base) {
+      const sep = base.includes("?") ? "&" : "?";
+      return `${base}${sep}_=${Date.now()}`;
+    }
+
+    function loadLogos() {
+      Papa.parse(freshUrl(LOGO_SHEET), {
+        download: true,
+        header: true,
+        complete: res => {
+          logos = {};
+          res.data.forEach(r => {
+            const keyShort = r["Kortnamn"]?.trim().toLowerCase();
+            const keyFull  = r["Fullständigt namn"]?.trim().toLowerCase();
+            const logo     = r["Logo-länk"]?.trim();
+            if (keyShort && logo) logos[keyShort] = logo;
+            if (keyFull  && logo) logos[keyFull]  = logo;
+          });
+          loadBracket();
+          if (autoRefreshEnabled) startAutoRefresh();
+        }
+      });
+    }
+
+    function findLogo(name) {
+      if (!name) return "logos/Placeholder.png";
+      const key = name.trim().toLowerCase();
+      return logos[key] || "logos/Placeholder.png";
+    }
+
+    function createMatchBox(row) {
+      const div = document.createElement("div");
+      div.className = "match";
+
+      const team1  = row["Team 1"]  || "TBD";
+      const team2  = row["Team 2"]  || "TBD";
+      const score1 = row["Score 1"] || "";
+      const score2 = row["Score 2"] || "";
+      const logo1  = findLogo(team1);
+      const logo2  = findLogo(team2);
+      const datum  = row["Datum"] || "";
+      const tid    = row["Tid"]   || "";
+      const bo     = row["BO"] ? `Bo${row["BO"]}` : "";
+
+      div.innerHTML = `
+        <div class="top-info">${datum} – ${tid} – ${bo}</div>
+        <div class="team"><img src="${logo1}" alt=""><span>${team1}</span><span style="margin-left:auto">${score1}</span></div>
+        <div class="team"><img src="${logo2}" alt=""><span>${team2}</span><span style="margin-left:auto">${score2}</span></div>
+      `;
+      return div;
+    }
+
+    function loadBracket() {
+      Papa.parse(freshUrl(SHEET_URL), {
+        download: true,
+        header: true,
+        complete: results => {
+          const data = results.data.filter(r => r["Runda"]);
+          const qf = document.getElementById("qf");
+          const sf = document.getElementById("sf");
+          const f  = document.getElementById("f");
+
+          qf.innerHTML = "<h3>Kvartsfinal</h3>";
+          sf.innerHTML = "<h3>Semifinal</h3>";
+          f.innerHTML  = "<h3>Final</h3>";
+
+          const kvarts = data.filter(r => r["Runda"].toLowerCase().includes("kvarts"));
+          const semi   = data.filter(r => r["Runda"].toLowerCase().includes("semi"));
+          const final  = data.find(r => r["Runda"].toLowerCase() === "final");
+          const brons  = data.find(r => r["Runda"].toLowerCase().includes("brons"));
+
+          kvarts.forEach(m => qf.appendChild(createMatchBox(m)));
+
+          const sfSpacerTop = document.createElement("div");
+          sfSpacerTop.style.height = "40px";
+          sf.prepend(sfSpacerTop);
+          semi.forEach(m => sf.appendChild(createMatchBox(m)));
+
+          const fSpacerTop = document.createElement("div");
+          fSpacerTop.style.height = "220px";
+          f.prepend(fSpacerTop);
+          if (final) f.appendChild(createMatchBox(final));
+
+          if (brons) {
+            const spacer = document.createElement("div");
+            spacer.style.height = "80px";
+            f.appendChild(spacer);
+            const bronsLabel = document.createElement("h3");
+            bronsLabel.textContent = "Bronsmatch";
+            bronsLabel.style.marginTop = "10px";
+            f.appendChild(bronsLabel);
+            f.appendChild(createMatchBox(brons));
+          }
+        }
+      });
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      refreshInterval = setInterval(loadBracket, 30000);
+      autoRefreshEnabled = true;
+      console.log("✅ Auto-refresh PÅ (30s)");
+    }
+
+    function stopAutoRefresh() {
+      if (refreshInterval) clearInterval(refreshInterval);
+      refreshInterval = null;
+      autoRefreshEnabled = false;
+      console.log("🛑 Auto-refresh AV");
+    }
+
+    window.setAutoRefresh = (on) => on ? startAutoRefresh() : stopAutoRefresh();
+
+    window.addEventListener("keydown", (e) => {
+      if (e.altKey && (e.key === "r" || e.key === "R")) {
+        autoRefreshEnabled ? stopAutoRefresh() : startAutoRefresh();
+      }
+    });
+
+    loadLogos();
+  </script>
+</body>
+</html>

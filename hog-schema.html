@@ -31,7 +31,7 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      font-family: sedgwick ave;
+      font-family: 'Sedgwick Ave', cursive;
       font-size: 50px;
       font-weight: bold;
       text-align: center;
@@ -75,7 +75,31 @@
       text-align: center;
       font-size: 26px;
       color: #ffffff;
-      margin-top: 4px;
+      margin-top: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .twitch-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .twitch-icon {
+      width: 28px;
+      height: 28px;
+      fill: #9146FF;
+      vertical-align: middle;
+    }
+
+    .twitch-name {
+      color: #9146FF;
+      font-weight: 600;
+      font-size: 26px;
+      letter-spacing: 0.5px;
     }
   </style>
 </head>
@@ -115,12 +139,10 @@
       vs.className = 'vs-result';
       vs.textContent = resultText;
 
-      // Lag A
       const teamA = document.createElement('div');
       teamA.className = 'team-a';
       teamA.innerHTML = `<div class="team-name">${match['Lag A'] || ''}</div><img class="team-logo" src="${logoA}" alt="">`;
 
-      // Lag B
       const teamB = document.createElement('div');
       teamB.className = 'team-b';
       teamB.innerHTML = `<img class="team-logo" src="${logoB}" alt=""><div class="team-name">${match['Lag B'] || ''}</div>`;
@@ -132,7 +154,25 @@
       if (match['Tid'] || match['Format'] || match['Twitch']) {
         const extra = document.createElement('div');
         extra.className = 'extra-info';
-        extra.textContent = `${match['Tid'] || ''} ${match['Format'] || ''} ${match['Twitch'] || ''}`;
+
+        let infoHTML = '';
+
+        if (match['Tid']) infoHTML += `${match['Tid']} `;
+        if (match['Format']) infoHTML += `${match['Format']} `;
+
+        if (match['Twitch']) {
+          const twitchName = match['Twitch'].replace("https://twitch.tv/", "").trim();
+          infoHTML += `
+            <span class="twitch-info">
+              <svg class="twitch-icon" viewBox="0 0 512 512">
+                <path d="M80 32L48 96v320h112v64h64l64-64h96l80-80V32H80zm336 256l-48 48h-96l-64 64v-64H112V80h304v208zM272 144h32v96h-32zm80 0h32v96h-32z"/>
+              </svg>
+              <span class="twitch-name">${twitchName}</span>
+            </span>
+          `;
+        }
+
+        extra.innerHTML = infoHTML.trim();
         wrapper.appendChild(extra);
       }
 
@@ -140,7 +180,7 @@
     }
 
     function autoscaleText(element, maxFontSize = 75, minFontSize = 16) {
-      if (element.dataset.fontsize) return; // behåll tidigare font-size
+      if (element.dataset.fontsize) return;
       const parentWidth = element.parentElement.offsetWidth;
       let fontSize = maxFontSize;
       element.style.fontSize = fontSize + "px";
@@ -148,7 +188,7 @@
         fontSize--;
         element.style.fontSize = fontSize + "px";
       }
-      element.dataset.fontsize = element.style.fontSize; // spara fontstorleken
+      element.dataset.fontsize = element.style.fontSize;
     }
 
     function loadMatches() {
@@ -160,23 +200,34 @@
 
           results.data.forEach(match => {
             if (match['Visa'] && match['Visa'].toLowerCase() === 'true') {
-              // Kontrollera om element redan finns baserat på lag-namn
               const existing = Array.from(container.children).find(wrapper => {
                 return wrapper.querySelector('.team-a .team-name').textContent === match['Lag A'] &&
                        wrapper.querySelector('.team-b .team-name').textContent === match['Lag B'];
               });
 
               if (existing) {
-                // Uppdatera bara score/extra-info
                 const vs = existing.querySelector('.vs-result');
                 vs.textContent = (match['Score A'] || match['Score B']) ? `${match['Score A'] || ''} - ${match['Score B'] || ''}` : "VS";
 
                 const extra = existing.querySelector('.extra-info');
                 if (extra) {
-                  extra.textContent = `${match['Tid'] || ''} ${match['Format'] || ''} ${match['Twitch'] || ''}`;
+                  let infoHTML = '';
+                  if (match['Tid']) infoHTML += `${match['Tid']} `;
+                  if (match['Format']) infoHTML += `${match['Format']} `;
+                  if (match['Twitch']) {
+                    const twitchName = match['Twitch'].replace("https://twitch.tv/", "").trim();
+                    infoHTML += `
+                      <span class="twitch-info">
+                        <svg class="twitch-icon" viewBox="0 0 512 512">
+                          <path d="M80 32L48 96v320h112v64h64l64-64h96l80-80V32H80zm336 256l-48 48h-96l-64 64v-64H112V80h304v208zM272 144h32v96h-32zm80 0h32v96h-32z"/>
+                        </svg>
+                        <span class="twitch-name">${twitchName}</span>
+                      </span>
+                    `;
+                  }
+                  extra.innerHTML = infoHTML.trim();
                 }
               } else {
-                // Skapa nytt element
                 const newElem = createMatchElement(match);
                 container.appendChild(newElem);
                 newElem.querySelectorAll('.team-name').forEach(el => autoscaleText(el));
